@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ubuntu 12.04"
+title: "Ubuntu 12.04, PHP 5.4, Apache2, and ppa:ondrej/php5"
 date: 2013-07-31 21:52
 comments: true
 categories: [php, ubuntu]
