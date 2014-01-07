@@ -4,7 +4,7 @@ title: "Automating staging of feature branches"
 date: 2014-01-07 11:52
 comments: true
 categories: [git, php]
-author: [Mark Sticht](https://plus.google.com/+MarkSticht)
+author: Mark Sticht
 ---
 
 Have you found team trying to swtich your staging server from one branch to 
