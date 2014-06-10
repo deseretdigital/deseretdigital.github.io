@@ -39,6 +39,9 @@ highlight:
   enable: true
   line_number: true
   tab_replace:
+# Markdown
+markdown:
+  gfm: true
 
 # Category & Tag
 default_category: uncategorized
