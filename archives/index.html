@@ -85,8 +85,8 @@
   
     <article id="post-metrics-at-ddm" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2014/06/10/metrics-at-ddm/" class="article-date">
-  <time datetime="2014-06-10T22:49:03.000Z" itemprop="datePublished">Jun 10 2014</time>
+    <a href="/2014/06/11/metrics-at-ddm/" class="article-date">
+  <time datetime="2014-06-11T22:49:03.000Z" itemprop="datePublished">Jun 11 2014</time>
 </a>
     
   </div>
@@ -97,7 +97,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2014/06/10/metrics-at-ddm/">Metrics at DDM</a>
+      <a class="article-title" href="/2014/06/11/metrics-at-ddm/">Metrics at DDM</a>
     </h1>
   
 
@@ -105,21 +105,21 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>At DDM we’re lucky to stand on the shoulders of giants in regards to collecting and monitoring the metrics we collect. If you’ve never read the post by Etsy’s team on <a href="http://codeascraft.com/2011/02/15/measure-anything-measure-everything/" target="_blank" rel="external">Measure Anything, Measure Everything</a>, go read that first then come back.</p>
-<p>We’ve tried to adopt Etsy’s attitude on measuring all different aspects of our application and then use graphs to monitor said data. One of the challenges is that for a company our size, we do a significant amount of traffic, so the costs of a tool like New Relic would be significant. We also have a pretty locked down internal environment where our servers live, so it is easier for us to implement something internally.</p>
-<p>One important thing for us is low maintenance and ease of use. We don’t have a dedicated “DevOps” team, and our Dev Team size is small compared to the # of products &amp; traffic we serve. So what we’ve implemented should work for the smallest of developer shops &amp; websites.</p>
+        <p>At DDM we’re lucky to stand on the shoulders of giants in regards to collecting and monitoring the metrics we collect. It hasn’t ever been easier to setup your own internal metrics for what is happening in your production environment. If you’ve never read the post by Etsy’s team on <a href="http://codeascraft.com/2011/02/15/measure-anything-measure-everything/" target="_blank" rel="external">Measure Anything, Measure Everything</a>, go read that first then come back.</p>
+<p>We’ve tried to adopt Etsy’s attitude on measuring all different aspects of our application and then setup graphs for the data. One of the challenges is that for a company our size we do a significant amount of traffic. The costs of a tool like New Relic would be significant. We also have a pretty locked down internal environment where our servers live, so it is easier for us to implement something internally.</p>
+<p>So while we can’t outsource our metrics, we also have a lot of time to manage a complicated system. It needed to be low maintenance and easy to use. We don’t have a dedicated “DevOps” team, and our Dev Team size is small compared to the # of products &amp; traffic we serve. So what we’ve implemented should work for the smallest of projects &amp; websites.</p>
 <h2 id="Our_Setup">Our Setup</h2>
 <p>We use the following tools to track and measure system and application metrics:</p>
 <ul>
 <li><a href="https://github.com/etsy/statsd/" target="_blank" rel="external">StatsD</a> - Network Daemon that runs on <a href="http://nodejs.org/" target="_blank" rel="external">Node.js</a> that collects metrics and timings, aggregates them, and sends them to Graphite.</li>
 <li><a href="http://graphite.readthedocs.org/en/latest/" target="_blank" rel="external">Graphite</a> - Stores real-time data &amp; outputs rendered graphs or json data.</li>
-<li><a href="http://grafana.org/" target="_blank" rel="external">Grafana</a> - An open source Dashboard &amp; Graph Editor. Uses ElasticSearch as it’s backend, very lightweight.</li>
+<li><a href="http://grafana.org/" target="_blank" rel="external">Grafana</a> - An open source Dashboard &amp; Graph Editor. Not too complicated, but has just enough features to make it powerful &amp; useful. Uses ElasticSearch as it’s backend, very lightweight.</li>
 </ul>
-<p>We send all of our metrics over UDP to StatsD. StatsD will then collect that data flush it to Graphite every second. We then use the Graphite interface to browse our data or quick one-off graphs. Once we know we have the data we want, we’ll create graphs in Grafana. Pretty darn simple.</p>
+<p>We send all of our metrics over UDP to StatsD. StatsD will then collect that data and flush it to Graphite every second. We then use the Graphite interface to browse our data or quick one-off graphs. Once we know we have the data we want, we’ll create graphs in Grafana. Pretty darn simple, and the time of rolling out an additional metric to track and graph it is minutes.</p>
 <p>There are lots of great tutorials for setting this stuff up, so instead of step-by-step, we’ll mention a few standout things that have helped our setup.</p>
 <h3 id="StatsD_Setup">StatsD Setup</h3>
-<p>The only two settings we don’t use that are default are we set our flushInterval to 1000 milliseconds, and we set the graphite.legacyNamespace to false sine the new namespace layout is much cleaner and easier to navigate:</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre>1
+<p>Our settings are default except for two. We set flushInterval to 1000 milliseconds (every second). We set the graphite.legacyNamespace to false sine the new namespace layout is much cleaner and easier to navigate:</p>
+<figure class="highlight son"><table><tr><td class="gutter"><pre>1
 2
 3
 4
@@ -129,20 +129,20 @@
 8
 9
 10
-</pre></td><td class="code"><pre>{
-  graphitePort: 2003
-, graphiteHost: "localhost"
-, port: 8125
-, backends: [ "./backends/graphite" ]
-, flushInterval: 1000
+</pre></td><td class="code"><pre><span class="rules">{
+  <span class="rule"><span class="attribute">graphitePort</span>:<span class="value"> <span class="number">2003</span>
+, graphiteHost: <span class="string">"localhost"</span>
+, port: <span class="number">8125</span>
+, backends: [ <span class="string">"./backends/graphite"</span> ]
+, flushInterval: <span class="number">1000</span>
 , graphite: {
     legacyNamespace: false
-  }
+  </span></span></span>}
 }
 </pre></td></tr></table></figure>
 
 <h3 id="Graphite_Setup">Graphite Setup</h3>
-<p>We have our retention policies setup like so:</p>
+<p>We use the same retention policy for all of our metrics. We might change to only retain 90 days, but we want to see if Year over Year data would be useful. Here are our retention policy settings:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre>1
 2
 3
@@ -168,7 +168,8 @@
 </pre></td></tr></table></figure>
 
 <p>This ends up making each metric about 600k each that we track. </p>
-<p>One hangup we’ve had is with Graphite’s maxDataPoints feature which is missing from the latest release of Graphite. Grafana’s wiki has some information about this, but you can easily <a href="https://github.com/grafana/grafana/wiki/Performance-for-large-time-spans" target="_blank" rel="external">update two files manually to add the ability back</a>.</p>
+<p>While setting up and maintaining our environment, we have had a few hiccups that we’ve needed to address.</p>
+<p>One hangup we’ve had is with Graphite’s maxDataPoints feature which is missing from the latest release of Graphite. Grafana’s wiki has some information about this, but you can easily <a href="https://github.com/grafana/grafana/wiki/Performance-for-large-time-spans" target="_blank" rel="external">update two files manually to add the ability back</a>. This is really important for the performance of Grafana.</p>
 <p>The other is <a href="https://github.com/graphite-project/graphite-web/issues/576" target="_blank" rel="external">a caching bug</a> we’ve encountered where graphite will sometimes return the png of a graph instead of the json data for it, breaking Grafana. The solution was to turn off the Cache by setting a Dummy Backend in Graphite’s <code>webapp/graphite/local_settings.py</code> by adding this at the bottom:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre>1
 2
@@ -189,7 +190,7 @@
 <p>Once we had our StatsD / Graphite / Grafana combo setup, we needed to get data into it. Thankfully StatsD is popular enough that there are many clients for just about any language out there.</p>
 <h3 id="Application_Metrics_in_PHP">Application Metrics in PHP</h3>
 <p>In our PHP Apps we use the <a href="https://packagist.org/packages/domnikl/statsd" target="_blank" rel="external">domnikl/statsd</a> package, though there are many others out there.</p>
-<p>We wrap our StatsD instance in a singleton (gasp! I know) that is autoloaded. The reason is you end up sprinkling StatsD stuff all over your application without worrying about getting it setup properly. You definitely could use some more proper method of dependency injection, but for this particular case it worked well.</p>
+<p>We wrap our StatsD instance in a singleton (gasp! I know) that is autoloaded. The reason is you end up sprinkling StatsD stuff all over your application. You don’t want to worry about making sure it is just setup properly. You definitely could use some more proper method of dependency injection, but for this particular case the singleton worked well for us.</p>
 <h3 id="Application_Metrics_in_Node">Application Metrics in Node</h3>
 <p>We really like the <a href="https://www.npmjs.org/package/statsd-client" target="_blank" rel="external">statsd-client</a> for Node. Easy to use and it just works.</p>
 <h3 id="JSON_Data_From_Services">JSON Data From Services</h3>
@@ -274,7 +275,7 @@ collectChartbeat();
 <h3 id="Monitoring_MySQL">Monitoring MySQL</h3>
 <p>To our monitor our mysql instances we wrote a tool call the <a href="https://github.com/deseretdigital/statsd-mysql-watcher" target="_blank" rel="external">statsd-mysql-watcher</a> (original name, I know!). We’re still working on some documentation, but it basically is a node.js app that you can pass a configuration file and have it watch a server &amp; poll stats data from it.</p>
 <h3 id="Events_/_Deploys_to_Production">Events / Deploys to Production</h3>
-<p>The latest version of graphite has awesome support for events. You just call a REST api to Push an event. Here is an example doing it in <code>bash</code> with <code>curl</code>:</p>
+<p>The latest version of Graphite has awesome support for events. You just call a REST api to Push an event. Here is an example doing it in <code>bash</code> with <code>curl</code>:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre>1
 2
 </pre></td><td class="code"><pre>curl -X POST <span class="string">"http://stats.example.com/events/"</span> \
@@ -283,11 +284,12 @@ collectChartbeat();
 
 <h2 id="Our_Dashboards">Our Dashboards</h2>
 <p>Grafana has been the missing piece for us with using Graphite and StatsD, it makes it very easy to configure some useful dashboards and save them for later. Previous tools were either too cumbersome to use, or we would just hardcode some custom D3 charts.</p>
-<p>Now anyone can easily go add some Dashboards to Grafana. Here is an example of one dashboard I use almost every day:</p>
+<p>Now anyone can easily go add some Dashboards to Grafana (even our Product Owners). Here is an example of one dashboard I use almost every day:</p>
 <p><img src="/images/metrics/dnews-graph.jpg" alt="DNews Graph"></p>
-<p>You can see we have Grafana annotations displaying our deploy event from Graphite Events. A couple of graphs that have been useful.</p>
+<p>You can see we have Grafana annotations displaying our deploy event from Graphite Events. We have internal data from our App showing # of queries, but also metrics from the databases showing the # of queries they are seeing. We have data from our external visitor services, and the core timings we care about for our website.</p>
+<p>There are a few graphs we’ve found helpful I’d like to call out.</p>
 <h3 id="Timings">Timings</h3>
-<p>Timings are crucial for capturing when releases or changes improve or worsen the performance of our website. A timing is super simple to do:</p>
+<p>Timings are crucial for capturing when releases increase or decrease the performance of our website. A timing is super simple to do:</p>
 <ul>
 <li>Get the start time in milliseconds</li>
 <li>Do whatever code / action</li>
@@ -309,23 +311,29 @@ ExampleStatsD::getInstance()-&gt;endTiming(<span class="string">'example.metric'
 
 <p>Here is an example of how we do a timing for how long our all our PHP calls take to execute for a particular project:</p>
 <p><img src="/images/metrics/timings.jpg" alt="PHP All Calls Timing Example"></p>
-<p>I’ve added the two arrows myself. You can see we did a deploy, and suddenly everything slowed down. We were able to hunt down the bug, fix it, and do another release. We were then able to verify that we did fix the bug.</p>
+<p>I’ve added the two arrows myself. You can see we did a deploy and suddenly everything slowed down. We were able to hunt down the bug, fix it, and do another release. Once released we were then able to immediately verify that we did fix the bug.</p>
 <h3 id="Capturing_Micro_Events">Capturing Micro Events</h3>
-<p>There are things that happen a lot on our application, but other times things that don’t happen very often. One example is we scenario where our contributor system will push over a story to our content system. That event only happens ~40 times a day, but it is a very important that the system works. The same thing could be for user registrations, or comments, or any other thing.</p>
-<p>The problem is Graphite/StatsD work by default in a “per second” view. Then when the second data is rolled up into a 10 second or minute granularity, you get things like lots of 0’s and then a 0.01 and then some more 0s. Its because you have 0.01 of these events per second.</p>
-<p>Graphite has an awesome function to combat that called “hitcount” which you can pass in a time and it won’t tell you how many per second, but how many of an event occurred. Here is a graph of the hitcount per 5 minutes:</p>
+<p>Tracking high volume metrics is important, but there are low volume metrics just as crucial. One example is a scenario where our contributor system will push over a story to our content system. That event only happens ~40 times a day, but is vital for keeping up-to-date content. Other examples of low volume metrics could be user registrations, comments, or checkouts.</p>
+<p>The challenge is Graphite/StatsD work in a “per second” view. When the second data is rolled up into a 10 second or minute granularity, you get the per second average, not the total count. This isn’t very useful for low volume metrics.</p>
+<p>Graphite has a solution with the function “hitcount.” You can pass in a time period (5min, 1h, etc) and it will confer per second to total number of “hits”. Here is a graph of the hitcount per 5 minutes:</p>
 <p><img src="/images/metrics/metric-events.jpg" alt="# of Stories Crossed Per 5 Minutes"> </p>
 <p>This is much easier to see if I go a full hour without stories crossing, I know I need to take a look.</p>
 <h3 id="Slave_Replication">Slave Replication</h3>
-<p>Using our statsd-mysql-watcher we can have the master report it’s current binary log position, and the slaves report theirs. We’ve had problems in the past where the connection between our masters and slaves would die, but they won’t realize it. The master would update, but since the slave didn’t have a real connection it wasn’t getting those. So if you did a seconds_behind_master, it would report 0.</p>
-<p>Here we are showing the current binary log position of the master and of the two slaves. You can see they are uniform, which means they are all on the same position, or very close. However you can see Slave 1 deviates and doesn’t follow the other two. It’s replication had a hiccup and was stuck because the connection died. Once we realize that we were able to fix the connection. You can see it moved to get back in line once fixed, and once it was following the others we knew it was completely caught up.</p>
+<p>Using our statsd-mysql-watcher we can have the master and slaves independently report their current binary log position. We’ve had problems in the past where the connection between our masters and slaves would die but wouldn’t realize it. The master would update, but the slave’s <code>seconds_behind_master</code> would still be 0 because it’s connection was dead.</p>
+<p>Here we are showing the current binary log position of the master and of the two slaves. You can see they are uniform, which means they are all on the near identical position. Then Slave 1 deviates and doesn’t follow the other two. It’s connection had died which stopped replication. This graph helped us spot the problem within a minute. Once fixed you can see the slave’s position move back in sync, and we knew in real-time we had fixed the problem.</p>
+<p><img src="/images/metrics/slave-replication.jpg" alt="Slave Replication"></p>
+<h2 id="Whats_Next">Whats Next</h2>
+<p>For us, we’re looking into better integrating our Nagios alerts into our metrics. The slave replication is an excellent candidate for an alert. So hopefully you’ll see more posts on how we integrate the two.</p>
+<p>We also want to get <a href="https://github.com/etsy/skyline" target="_blank" rel="external">Skyline</a> and <a href="https://github.com/etsy/oculus" target="_blank" rel="external">Oculus</a> setup to help recognize and detect anomalies in our graphs.</p>
+<p>Have any questions? Have suggestions of things we should check out? Feel free to leave some comments!</p>
+<p>Justin Carmony,<br>DDM Tech Team</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tech.deseretdigital.com/2014/06/10/metrics-at-ddm/" data-id="ltz48jin8mllj1hu" class="article-share-link">Share</a>
+      <a data-url="http://tech.deseretdigital.com/2014/06/11/metrics-at-ddm/" data-id="krlfboyu4nd8z26e" class="article-share-link">Share</a>
       
-        <a href="http://tech.deseretdigital.com/2014/06/10/metrics-at-ddm/#disqus_thread" class="article-comment-link">Comments</a>
+        <a href="http://tech.deseretdigital.com/2014/06/11/metrics-at-ddm/#disqus_thread" class="article-comment-link">Comments</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/grafana/">grafana</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/graphite/">graphite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/metrics/">metrics</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/statsd/">statsd</a></li></ul>
@@ -372,7 +380,7 @@ ExampleStatsD::getInstance()-&gt;endTiming(<span class="string">'example.metric'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tech.deseretdigital.com/2014/01/07/automatic-staging-of-branches/" data-id="wllwfn2r1qaw9nu2" class="article-share-link">Share</a>
+      <a data-url="http://tech.deseretdigital.com/2014/01/07/automatic-staging-of-branches/" data-id="79vm2fxe2ei5u1vh" class="article-share-link">Share</a>
       
         <a href="http://tech.deseretdigital.com/2014/01/07/automatic-staging-of-branches/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -417,7 +425,7 @@ ExampleStatsD::getInstance()-&gt;endTiming(<span class="string">'example.metric'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tech.deseretdigital.com/2013/07/31/ubuntu-12-doc-04/" data-id="c5g8j5qxayt7rm6r" class="article-share-link">Share</a>
+      <a data-url="http://tech.deseretdigital.com/2013/07/31/ubuntu-12-doc-04/" data-id="hl6k1zdaoeok0xr6" class="article-share-link">Share</a>
       
         <a href="http://tech.deseretdigital.com/2013/07/31/ubuntu-12-doc-04/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -457,7 +465,7 @@ ExampleStatsD::getInstance()-&gt;endTiming(<span class="string">'example.metric'
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://tech.deseretdigital.com/2013/07/30/welcome-to-the-new-ddm-tech-blog/" data-id="fmu5ae3qthbmoi36" class="article-share-link">Share</a>
+      <a data-url="http://tech.deseretdigital.com/2013/07/30/welcome-to-the-new-ddm-tech-blog/" data-id="whd46ychxj4o6abz" class="article-share-link">Share</a>
       
         <a href="http://tech.deseretdigital.com/2013/07/30/welcome-to-the-new-ddm-tech-blog/#disqus_thread" class="article-comment-link">Comments</a>
       
@@ -520,7 +528,7 @@ ExampleStatsD::getInstance()-&gt;endTiming(<span class="string">'example.metric'
       <ul>
         
           <li>
-            <a href="/2014/06/10/metrics-at-ddm/">Metrics at DDM</a>
+            <a href="/2014/06/11/metrics-at-ddm/">Metrics at DDM</a>
           </li>
         
           <li>
